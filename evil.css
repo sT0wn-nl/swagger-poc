@@ -1,4 +1,18 @@
 /* evil.css - CSS Injection PoC
+   Target: sso.competence.biz
+   Context: Responsible Disclosure - SDB Groep
+
+   WERKING:
+   Na een mislukte login rendert de server de pagina opnieuw.
+   De username staat dan in het HTML value="..." attribuut.
+   ExternalCss= persisteert als hidden field -> deze CSS
+   wordt opnieuw geladen -> attribuut-selectors matchen.
+
+   VERWACHTE COLLABORATOR HITS:
+   1x  /loaded            = CSS is geladen op SSO pagina
+   1x  /username-starts-X = eerste letter van de username
+   1x  /username-ends-X   = laatste letter van de username
+*/
 
 /* ================================================
    1. BEACON: bewijst dat externe CSS geladen wordt
